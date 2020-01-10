@@ -35,7 +35,7 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 			// add error handling in case returned value is undefined
 			const newPass = hashPassword(password);
 
-			// change db to vmail and then update the password
+			// change db to vmail and update the password
 			connection.query(
 				'UPDATE `users` SET `password` = ? WHERE `id` = 1',
 				[newPass],
