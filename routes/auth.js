@@ -17,10 +17,6 @@ router.post('/', (request, response) => {
 		response.json('Invalid or missing values');
 	}
 
-	// protect from sql injections although possibly not needed if using prepared statements
-	userName.replace(' ', '');
-	userName.replace(';', '');
-
 	connection.query(
 		'SELECT * FROM `users` WHERE `userName` = ?',
 		[userName],

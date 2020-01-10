@@ -41,14 +41,13 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 				{ user: process.env.VMAILUSER, password: process.env.VMAILPASS, database: 'vmail' },
 				err => {
 					if (err) {
-						// throw new Error('Failed to change the database');
-						console.log('Failed to change the database');
+						throw new Error('Failed to change the database');
 					}
 
 					connection.query(
 						'UPDATE `mailbox` SET `password` = ? WHERE username = ?',
 						[newPass, email],
-						(err, res, fields) => {
+						err => {
 							if (err) throw new Error('Failed to update the password', err);
 						}
 					);
@@ -58,8 +57,11 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 					});
 				}
 			);
+		} else {
+			throw new Error('Not allowed to modify password of the current email');
 		}
 	} catch (e) {
-		console.log(e);
+		console.log(e.message);
+		return e.message;
 	}
 };

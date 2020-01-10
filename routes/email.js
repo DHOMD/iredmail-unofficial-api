@@ -9,20 +9,21 @@ router.post('/reset', async (request, response) => {
 	const { email, newPass } = request.body;
 	const userInfo = getTokenValues(token);
 
-	// const isAllowed = await isAllowedToModifyPassword(userInfo, email);
-	const isAllowed = true;
+	// else if (1) {
+	// 	response.json("You don't have permissions to modify any other users beside yourself");
+	// }
 
 	if (!userInfo) {
 		response.json('Token is invalid or has expired');
-	} else if (!isAllowed) {
-		response.json("You don't have permissions to modify any other users beside yourself");
 	} else if (typeof email === 'undefined' || typeof newPass === 'undefined') {
 		response.json('Invalid values');
 	} else if (newPass.length < 8 || !/\d/.test(newPass)) {
 		response.json('Password must at least be 8 characters long and contain at least one digit');
+	} else {
+		// try {
+		// } catch (e) {
+		// }
 	}
-
-	// connection.changeUser({ user: process.env.VMAILUSER }, err => {});
 });
 
 module.exports = router;
