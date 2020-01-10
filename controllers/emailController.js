@@ -32,31 +32,41 @@ const hashPassword = password => {
 };
 
 exports.changeEmailPassword = async (userInfo, email, password) => {
+	let userErrors = [];
 	try {
 		const isAllowed = await isAllowedToModifyPassword(userInfo, email);
 		if (isAllowed) {
-			const newPass = hashPassword(password);
+			try {
+				const newPass = hashPassword(password);
 
-			connection.changeUser(
-				{ user: process.env.VMAILUSER, password: process.env.VMAILPASS, database: 'vmail' },
-				err => {
-					if (err) {
-						throw new Error('Failed to change the database');
-					}
-
-					connection.query(
-						'UPDATE `mailbox` SET `password` = ? WHERE username = ?',
-						[newPass, email],
-						err => {
-							if (err) throw new Error('Failed to update the password', err);
+				connection.changeUser(
+					{
+						user: process.env.VMAILUSER,
+						password: process.env.VMAILPASS,
+						database: 'vmail'
+					},
+					err => {
+						if (err) {
+							throw new Error('Failed to change the database');
 						}
-					);
 
-					connection.changeUser({ database: 'controlPanel' }, err => {
-						if (err) throw new Error('Failed to change back to default database', err);
-					});
-				}
-			);
+						connection.query(
+							'UPDATE `mailbox` SET `password` = ? WHERE username = ?',
+							[newPass, email],
+							err => {
+								if (err) throw new Error('Failed to update the password', err);
+							}
+						);
+
+						connection.changeUser({ database: 'controlPanel' }, err => {
+							if (err)
+								throw new Error('Failed to change back to default database', err);
+						});
+					}
+				);
+			} catch (e) {
+				console.log(e.message);
+			}
 		} else {
 			const err = new Error('Not allowed to modify password of the current email');
 			userErrors.push(err.message);
