@@ -1,7 +1,7 @@
 panel features
 
 email
-1. email password change
+1. email password change  done (needs testing)
 2. create new email accounts
 3. delete email accounts
 
@@ -10,5 +10,4 @@ domains
 
 wordpress
 1. create new wordpress sites
-
-
+2. update site plugins and themes

@@ -4,7 +4,6 @@ const getTokenValues = require('../utils/verifyToken');
 const { changeEmailPassword } = require('../controllers/emailController');
 
 router.post('/reset', async (request, response) => {
-	// get jwt from request
 	const token = request.get('Authorization').replace('Bearer ', '');
 	const { email, newPass } = request.body;
 	const userInfo = getTokenValues(token);
