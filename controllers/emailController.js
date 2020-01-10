@@ -10,7 +10,7 @@ const isAllowedToModifyPassword = (userInfo, email) => {
 			[userInfo.user, domain],
 			(err, res, fields) => {
 				if (err) {
-					reject(err);
+					reject(err.message);
 				} else if (res.length && userInfo.user != res[0].userName && res[0].isAdmin != 1) {
 					resolve(false);
 				}
@@ -58,10 +58,12 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 				}
 			);
 		} else {
-			throw new Error('Not allowed to modify password of the current email');
+			const err = new Error('Not allowed to modify password of the current email');
+			userErrors.push(err.message);
+			throw err;
 		}
 	} catch (e) {
 		console.log(e.message);
-		return e.message;
+		return userErrors;
 	}
 };
