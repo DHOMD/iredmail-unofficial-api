@@ -1,0 +1,25 @@
+ssh key instructions
+
+ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
+# Don't add passphrase
+openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
+cat jwtRS256.key
+cat jwtRS256.key.pub
+
+
+auth.js file
+
+1. listen for post request and receive userName and password
+2. Chck with db if the record exists
+3. if record does exist then return jwt else return error message like user not found
+4. the jwt will be used as bearer token for all requests having to do with db
+// $2b$10$Vd/Fu65koXxTNM4dOuxW5uy242qbqY3u7ygAm12D1yTNeFvmBaUrW hash for pass: salasana with salt = 10
+
+verifyToken.js file
+
+1. export function that receives a token
+2. return true if token is valid and false if not
+
+server.js file
+
+1. manage all routes

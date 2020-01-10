@@ -1,0 +1,14 @@
+panel features
+
+email
+1. email password change
+2. create new email accounts
+3. delete email accounts
+
+domains
+1. add domains and subdomains
+
+wordpress
+1. create new wordpress sites
+
+

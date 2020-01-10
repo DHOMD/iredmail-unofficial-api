@@ -1,0 +1,4 @@
+node_modules
+.env
+id_rsa
+yarn.lock
