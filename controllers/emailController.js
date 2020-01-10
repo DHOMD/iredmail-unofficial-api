@@ -1,3 +1,4 @@
+require('dotenv').config();
 const connection = require('../config/database');
 const { exec } = require('child_process');
 
@@ -23,6 +24,8 @@ const hashPassword = password => {
 	const hash = exec(`doveadm pw -s 'ssha512' -p ${password}`, (err, stdout, stderr) => {
 		if (!err) {
 			return stdout;
+		} else {
+			throw new Error('Failed to create new hash');
 		}
 	});
 	return hash;
@@ -32,14 +35,28 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 	try {
 		const isAllowed = await isAllowedToModifyPassword(userInfo, email);
 		if (isAllowed) {
-			// add error handling in case returned value is undefined
 			const newPass = hashPassword(password);
 
-			// change db to vmail and update the password
-			connection.query(
-				'UPDATE `users` SET `password` = ? WHERE `id` = 1',
-				[newPass],
-				(err, res, fields) => {}
+			connection.changeUser(
+				{ user: process.env.VMAILUSER, password: process.env.VMAILPASS, database: 'vmail' },
+				err => {
+					if (err) {
+						// throw new Error('Failed to change the database');
+						console.log('Failed to change the database');
+					}
+
+					connection.query(
+						'UPDATE `mailbox` SET `password` = ? WHERE username = ?',
+						[newPass, email],
+						(err, res, fields) => {
+							if (err) throw new Error('Failed to update the password', err);
+						}
+					);
+
+					connection.changeUser({ database: 'controlPanel' }, err => {
+						if (err) throw new Error('Failed to change back to default database', err);
+					});
+				}
 			);
 		}
 	} catch (e) {
