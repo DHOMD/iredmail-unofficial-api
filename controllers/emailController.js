@@ -25,7 +25,7 @@ const hashPassword = password => {
 		if (!err) {
 			return stdout;
 		}
-		throw new Error('Failed to create new hash');
+		throw new Error('Failed to create new hash', err);
 	});
 	return hash;
 };
@@ -64,6 +64,9 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 					}
 				);
 			} catch (e) {
+				userErrors.push(
+					'Something went wrong on our side, try again later or contact admin'
+				);
 				console.log(e.message);
 			}
 		} else {
