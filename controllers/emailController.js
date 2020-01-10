@@ -24,9 +24,8 @@ const hashPassword = password => {
 	const hash = exec(`doveadm pw -s 'ssha512' -p ${password}`, (err, stdout, stderr) => {
 		if (!err) {
 			return stdout;
-		} else {
-			throw new Error('Failed to create new hash');
 		}
+		throw new Error('Failed to create new hash');
 	});
 	return hash;
 };
