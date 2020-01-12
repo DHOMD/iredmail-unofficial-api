@@ -34,7 +34,7 @@ const hashPassword = password => {
 };
 
 exports.changeEmailPassword = async (userInfo, email, password) => {
-	let userMessages = [];
+	let userMessage = '';
 	try {
 		const isAllowed = await isAllowedToModifyPassword(userInfo, email);
 		if (isAllowed) {
@@ -83,11 +83,11 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 					);
 				});
 
-				await Promise.all([switchToVmailDB, updatePassword, switchToDefaultDB]);
+				await Promise.all([switchToVmailDB, updatePassword, switchToDefaultDB]).then(() => {
+					userMessage = 'Password has been successfully changed';
+				});
 			} catch (e) {
-				userMessages.push(
-					'Something went wrong on our side, try again later or contact admin'
-				);
+				userMessage = 'Something went wrong on our side, try again later or contact admin';
 				console.log('Inside nested catch block ' + e);
 			}
 		} else {
@@ -97,6 +97,7 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 		}
 	} catch (e) {
 		console.log('Inside catch block ' + e);
-		return userMessages;
+		userMessage = 'Not allowed to modify password of this email';
 	}
+	return userMessage;
 };

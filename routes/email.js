@@ -8,10 +8,6 @@ router.post('/reset', async (request, response) => {
 	const { email, newPass } = request.body;
 	const userInfo = getTokenValues(token);
 
-	// else if (1) {
-	// 	response.json("You don't have permissions to modify any other users beside yourself");
-	// }
-
 	if (!userInfo) {
 		response.json('Token is invalid or has expired');
 	} else if (typeof email === 'undefined' || typeof newPass === 'undefined') {
@@ -19,7 +15,8 @@ router.post('/reset', async (request, response) => {
 	} else if (newPass.length < 8 || !/\d/.test(newPass)) {
 		response.json('Password must at least be 8 characters long and contain at least one digit');
 	} else {
-		response.json(changeEmailPassword(userInfo, email, newPass));
+		const message = await changeEmailPassword(userInfo, email, newPass);
+		response.json(message);
 	}
 });
 
