@@ -1,5 +1,4 @@
 // const connection = require('./config/database');
-// const { exec } = require('child_process');
 
 // connection.changeUser({ database: 'ishanovNet' }, err => {
 // 	connection.query('SELECT `user_login` FROM `wp_users`', [], (err, res, fields) => {
@@ -37,13 +36,26 @@
 
 // hashPassword('123123');
 
-try {
-	let bar = 1;
+// try {
+// 	let bar = 1;
 
-	if (bar != 5) {
-		throw new Error('Bar is not 5');
-	}
-	throw new Error('This should never get thrown');
-} catch (e) {
-	console.error(e.message);
-}
+// 	if (bar != 5) {
+// 		throw new Error('Bar is not 5');
+// 	}
+// 	throw new Error('This should never get thrown');
+// } catch (e) {
+// 	console.error(e.message);
+// }
+const { exec } = require('child_process');
+
+const hashPassword = password => {
+	return new Promise((resolve, reject) => {
+		exec(`doveadm pw -s 'ssha512' -p ${password}`, (err, stdout, stderr) => {
+			if (!err && !stderr) {
+				resolve(stdout);
+			}
+			reject('Failed to create new hash');
+		});
+	});
+};
+hashPassword('1123').then(pass => console.log(pass));

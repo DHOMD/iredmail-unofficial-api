@@ -21,23 +21,25 @@ const isAllowedToModifyPassword = (userInfo, email) => {
 };
 
 const hashPassword = password => {
-	const hash = exec(`doveadm pw -s 'ssha512' -p ${password}`, (err, stdout, stderr) => {
-		if (!err) {
-			return stdout;
-		}
-		throw new Error('Failed to create new hash', err);
+	return new Promise((resolve, reject) => {
+		exec(`doveadm pw -s 'ssha512' -p ${password}`, (err, stdout, stderr) => {
+			if (!err && !stderr) {
+				resolve(stdout);
+			}
+			reject('Failed to create new hash');
+		});
 	});
-	return hash;
 };
 
 exports.changeEmailPassword = async (userInfo, email, password) => {
-	let userErrors = [];
+	let userMessages = [];
 	try {
 		const isAllowed = await isAllowedToModifyPassword(userInfo, email);
 		if (isAllowed) {
 			try {
-				const newPass = hashPassword(password);
+				const newPass = await hashPassword(password);
 
+				// rewrite all this not to use callbacks, instead to be used with promise.all()
 				connection.changeUser(
 					{
 						user: process.env.VMAILUSER,
@@ -50,7 +52,7 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 						}
 
 						connection.query(
-							'UPDATE `mailbox` SET `password` = ? WHERE username = ?',
+							'UPDATE `mailbox` SET `password` = ? WHERE `username` = ?',
 							[newPass, email],
 							err => {
 								if (err) throw new Error('Failed to update the password', err);
@@ -58,24 +60,28 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 						);
 
 						connection.changeUser({ database: 'controlPanel' }, err => {
-							if (err)
+							if (err) {
 								throw new Error('Failed to change back to default database', err);
+							}
+							console.info('Got this far!!!');
+							userMessages.push('Password has been successfully changed');
+							return userMessages;
 						});
 					}
 				);
 			} catch (e) {
-				userErrors.push(
+				userMessages.push(
 					'Something went wrong on our side, try again later or contact admin'
 				);
 				console.log(e.message);
 			}
 		} else {
 			const err = new Error('Not allowed to modify password of the current email');
-			userErrors.push(err.message);
+			userMessages.push(err.message);
 			throw err;
 		}
 	} catch (e) {
 		console.log(e.message);
-		return userErrors;
+		return userMessages;
 	}
 };

@@ -19,9 +19,7 @@ router.post('/reset', async (request, response) => {
 	} else if (newPass.length < 8 || !/\d/.test(newPass)) {
 		response.json('Password must at least be 8 characters long and contain at least one digit');
 	} else {
-		// try {
-		// } catch (e) {
-		// }
+		response.json(changeEmailPassword(userInfo, email, newPass));
 	}
 });
 
