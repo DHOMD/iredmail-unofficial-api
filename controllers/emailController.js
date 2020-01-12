@@ -11,10 +11,12 @@ const isAllowedToModifyPassword = (userInfo, email) => {
 			(err, res, fields) => {
 				if (err) {
 					reject(err.message);
-				} else if (res.length && userInfo.user != res[0].userName && res[0].isAdmin != 1) {
+				} else if (res != '' && userInfo.user != res[0].userName && res[0].isAdmin != 1) {
 					resolve(false);
+				} else if (res != '') {
+					resolve(true);
 				}
-				resolve(res.length ? true : false);
+				resolve(false);
 			}
 		);
 	});
@@ -39,41 +41,54 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 			try {
 				const newPass = await hashPassword(password);
 
-				// rewrite all this not to use callbacks, instead to be used with promise.all()
-				connection.changeUser(
-					{
-						user: process.env.VMAILUSER,
-						password: process.env.VMAILPASS,
-						database: 'vmail'
-					},
-					err => {
-						if (err) {
-							throw new Error('Failed to change the database');
-						}
-
-						connection.query(
-							'UPDATE `mailbox` SET `password` = ? WHERE `username` = ?',
-							[newPass, email],
-							err => {
-								if (err) throw new Error('Failed to update the password', err);
-							}
-						);
-
-						connection.changeUser({ database: 'controlPanel' }, err => {
+				const switchToVmailDB = new Promise((resolve, reject) => {
+					connection.changeUser(
+						{
+							user: process.env.VMAILUSER,
+							password: process.env.VMAILPASS,
+							database: 'vmail'
+						},
+						err => {
 							if (err) {
-								throw new Error('Failed to change back to default database', err);
+								reject('Failed to change the database');
 							}
-							console.info('Got this far!!!');
-							userMessages.push('Password has been successfully changed');
-							return userMessages;
-						});
-					}
-				);
+							resolve();
+						}
+					);
+				});
+
+				const updatePassword = new Promise((resolve, reject) => {
+					connection.query(
+						'UPDATE `mailbox` SET `password` = ? WHERE `username` = ?',
+						[newPass, email],
+						err => {
+							if (err) {
+								reject('Failed to update the password');
+							}
+							resolve();
+						}
+					);
+				});
+
+				// todo move the credentials to env file
+				const switchToDefaultDB = new Promise((resolve, reject) => {
+					connection.changeUser(
+						{ database: 'controlPanel', user: 'admin', password: 'salasana' },
+						err => {
+							if (err) {
+								reject(err);
+							}
+							resolve();
+						}
+					);
+				});
+
+				await Promise.all([switchToVmailDB, updatePassword, switchToDefaultDB]);
 			} catch (e) {
 				userMessages.push(
 					'Something went wrong on our side, try again later or contact admin'
 				);
-				console.log(e.message);
+				console.log('Inside nested catch block ' + e);
 			}
 		} else {
 			const err = new Error('Not allowed to modify password of the current email');
@@ -81,7 +96,7 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 			throw err;
 		}
 	} catch (e) {
-		console.log(e.message);
+		console.log('Inside catch block ' + e);
 		return userMessages;
 	}
 };

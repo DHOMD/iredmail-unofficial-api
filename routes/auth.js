@@ -21,7 +21,7 @@ router.post('/', (request, response) => {
 		'SELECT * FROM `users` WHERE `userName` = ?',
 		[userName],
 		(err, res, fields) => {
-			if (res.length) {
+			if (res != '') {
 				bcrypt.compare(password, res[0].password, (err, result) => {
 					if (result) {
 						console.log('Authentication was successful');
