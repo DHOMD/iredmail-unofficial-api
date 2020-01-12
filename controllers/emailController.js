@@ -2,7 +2,7 @@ require('dotenv').config();
 const connection = require('../config/database');
 const { exec } = require('child_process');
 
-const isAllowedToModifyPassword = (userInfo, email) => {
+const isAllowedToModify = (userInfo, email) => {
 	const domain = email.slice(email.indexOf('@')).replace('@', '');
 	return new Promise((resolve, reject) => {
 		connection.query(
@@ -36,7 +36,7 @@ const hashPassword = password => {
 exports.changeEmailPassword = async (userInfo, email, password) => {
 	let userMessage = '';
 	try {
-		const isAllowed = await isAllowedToModifyPassword(userInfo, email);
+		const isAllowed = await isAllowedToModify(userInfo, email);
 
 		if (isAllowed) {
 			try {
@@ -100,3 +100,5 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 	}
 	return userMessage;
 };
+
+exports.createNewEmailAccount = async (userInfo, email, password) => {};
