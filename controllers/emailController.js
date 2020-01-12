@@ -37,6 +37,7 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 	let userMessage = '';
 	try {
 		const isAllowed = await isAllowedToModifyPassword(userInfo, email);
+
 		if (isAllowed) {
 			try {
 				const newPass = await hashPassword(password);
@@ -91,13 +92,11 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 				console.log('Inside nested catch block ' + e);
 			}
 		} else {
-			const err = new Error('Not allowed to modify password of the current email');
-			userMessages.push(err.message);
-			throw err;
+			userMessage = 'Not allowed to modify password of the current email';
 		}
 	} catch (e) {
 		console.log('Inside catch block ' + e);
-		userMessage = 'Not allowed to modify password of this email';
+		userMessage = 'Something went wrong, try again later';
 	}
 	return userMessage;
 };
