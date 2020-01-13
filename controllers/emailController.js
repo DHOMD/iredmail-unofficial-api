@@ -3,7 +3,7 @@ const connection = require('../config/database');
 const { exec } = require('child_process');
 
 const isAllowedToModify = (userInfo, email) => {
-	const domain = email.slice(email.indexOf('@')).replace('@', '');
+	const domain = email.split('@')[1];
 	return new Promise((resolve, reject) => {
 		connection.query(
 			'SELECT `users`.`userName`, `domains`.`domain`, `users_domains`.`isAdmin` FROM `users_domains` LEFT JOIN `users` ON `users_domains`.`userId` = `users`.`id` LEFT JOIN `domains` ON `users_domains`.`domainId` = `domains`.`id` WHERE `users`.`userName` = ? AND `domains`.`domain` = ?',
@@ -77,16 +77,15 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 						{ database: 'controlPanel', user: 'admin', password: 'salasana' },
 						err => {
 							if (err) {
-								reject(err);
+								reject('Failed to change back to default database');
 							}
 							resolve();
 						}
 					);
 				});
 
-				await Promise.all([switchToVmailDB, updatePassword, switchToDefaultDB]).then(() => {
-					userMessage = 'Password has been successfully changed';
-				});
+				await Promise.all([switchToVmailDB, updatePassword, switchToDefaultDB]);
+				userMessage = 'Password has been successfully changed';
 			} catch (e) {
 				userMessage = 'Something went wrong on our side, try again later or contact admin';
 				console.log('Inside nested catch block ' + e);
@@ -101,4 +100,18 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 	return userMessage;
 };
 
-exports.createNewEmailAccount = async (userInfo, email, password) => {};
+exports.createNewEmailAccount = async (userInfo, email, password) => {
+	let userMessage = '';
+	try {
+		const isAllowed = await isAllowedToModify(userInfo, email);
+
+		if (isAllowed) {
+			console.log(1);
+		} else {
+			userMessage = 'Not allowed to create new email accounts on this domain';
+		}
+	} catch (e) {
+		console.log(e);
+		userMessage = 'Something went wrong, try again later';
+	}
+};

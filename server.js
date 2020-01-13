@@ -13,6 +13,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/auth', require('./routes/auth'));
+app.use('/user', require('./routes/user'));
 app.use('/email', require('./routes/email'));
 
 const port = process.env.PORT || 3000;
