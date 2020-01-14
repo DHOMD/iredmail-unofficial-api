@@ -1,6 +1,7 @@
 require('dotenv').config();
 const connection = require('../config/database');
 const { exec } = require('child_process');
+const moment = require('moment');
 
 const isAllowedToModify = (userInfo, email) => {
 	const domain = email.split('@')[1];
@@ -109,7 +110,30 @@ exports.createNewEmailAccount = async (userInfo, email, password) => {
 		const isAllowed = await isAllowedToModify(userInfo, email);
 
 		if (isAllowed) {
-			console.log(1);
+			try {
+				const hash = await hashPassword(password);
+
+				const createMailbox = new Promise((resolve, reject) => {
+					const username = email.split('@');
+					const user = username[0];
+					const domain = username[1];
+					const date = moment().format('YYYY.MM.DD.HH.mm.ss');
+					const maildir = `domain/${email.charAt(0)}/${email.charAt(1)}/${email.charAt(2)}/${user}-${date}/`;
+
+					connection.query(
+						'INSERT INTO `mailbox` (username, password, name, storagebasedirectory, storagenode, maildir, quota, domain, active, passwordlastchange, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
+						[email, hash, '', '/var/vmail', 'vmail1', maildir, 0, domain, 1],
+						(err, res, fields) => {}
+					);
+				});
+
+				const createForwardings = new Promise((resolve, reject) => {
+					connection.query('INSERT INTO ', [], (err, res, fields) => {});
+				});
+			} catch (e) {
+				userMessage = 'Something went wrong on our side, try again later or contact admin';
+				console.log('Inside nested catch block');
+			}
 		} else {
 			userMessage = 'Not allowed to create new email accounts on this domain';
 		}
