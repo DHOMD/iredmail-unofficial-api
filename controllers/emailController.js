@@ -71,10 +71,13 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 					);
 				});
 
-				// todo move the credentials to env file
 				const switchToDefaultDB = new Promise((resolve, reject) => {
 					connection.changeUser(
-						{ database: 'controlPanel', user: 'admin', password: 'salasana' },
+						{
+							database: process.env.DEFAULTDB,
+							user: process.env.DEFAULTUSER,
+							password: process.env.DEFAULTPASS
+						},
 						err => {
 							if (err) {
 								reject('Failed to change back to default database');
@@ -114,4 +117,5 @@ exports.createNewEmailAccount = async (userInfo, email, password) => {
 		console.log(e);
 		userMessage = 'Something went wrong, try again later';
 	}
+	return userMessage;
 };
