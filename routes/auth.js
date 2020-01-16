@@ -48,7 +48,7 @@ router.post('/', async (request, response) => {
 		}
 	} catch (e) {
 		console.log('Failed to authenticate ' + e);
-		response.json('An error has occured, try again later');
+		response.json('An error has occured during authentication ' + e);
 	}
 });
 
