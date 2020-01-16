@@ -17,39 +17,34 @@ router.post('/', (request, response) => {
 		response.json('Invalid or missing values');
 	}
 
-	connection.query(
-		'SELECT * FROM `users` WHERE `userName` = ?',
-		[userName],
-		(err, res, fields) => {
-			if (res != '') {
-				bcrypt.compare(password, res[0].password, (err, result) => {
-					if (result) {
-						console.log('Authentication was successful');
-						jwt.sign(
-							{
-								exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
-								user: res[0].userName
-								// isAdmin: res[0].isAdmin
-							},
-							privKey,
-							{ algorithm: 'RS256' },
-							(err, token) => {
-								if (err) {
-									response.json('Error occured when generating token');
-								} else {
-									response.json({ token });
-								}
+	connection.query('SELECT * FROM `users` WHERE `userName` = ?', [userName], (err, res, fields) => {
+		if (res != '') {
+			bcrypt.compare(password, res[0].password, (err, result) => {
+				if (result) {
+					console.log('Authentication was successful');
+					jwt.sign(
+						{
+							exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+							user: res[0].userName
+						},
+						privKey,
+						{ algorithm: 'RS256' },
+						(err, token) => {
+							if (err) {
+								response.json('Error occured when generating token');
+							} else {
+								response.json({ token });
 							}
-						);
-					} else {
-						response.json('Incorrect Password');
-					}
-				});
-			} else {
-				response.json('No user found');
-			}
+						}
+					);
+				} else {
+					response.json('Incorrect Password');
+				}
+			});
+		} else {
+			response.json('No user found');
 		}
-	);
+	});
 });
 
 module.exports = router;

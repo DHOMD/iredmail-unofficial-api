@@ -4,7 +4,7 @@ const getTokenValues = require('../utils/verifyToken');
 const { changeEmailPassword, createNewEmailAccount } = require('../controllers/emailController');
 
 router.post('/reset', async (request, response) => {
-	const token = request.get('Authorization').replace('Bearer ', '');
+	const token = request.get('Authorization').replace('Bearer ', '') || null;
 	const { email, newPass } = request.body;
 	const userInfo = getTokenValues(token);
 
@@ -21,18 +21,19 @@ router.post('/reset', async (request, response) => {
 });
 
 router.post('/add', async (request, response) => {
-	const token = request.get('Authorization').replace('Bearer', '');
+	const token = request.get('Authorization').replace('Bearer ', '') || null;
 	const { email, password } = request.body;
 	const userInfo = getTokenValues(token);
 
 	if (!userInfo) {
 		response.json('Token is invalid or expired');
-	} else if (typeof email === 'undefined' || typeof newPass === 'undefined') {
+	} else if (typeof email === 'undefined' || typeof password === 'undefined') {
 		response.json('Invalid values');
 	} else if (password.length < 8 || !/\d/.test(password)) {
 		response.json('Password must at least be 8 characters long and contain at least one digit');
 	} else {
-		await createNewEmailAccount(userInfo, email, password);
+		const message = await createNewEmailAccount(userInfo, email, password);
+		response.json(message);
 	}
 });
 

@@ -9,6 +9,7 @@ const getTokenValues = token => {
 			return verified;
 		}
 	} catch (e) {
+    console.log('Failed to parse token ' + e);
 		return false;
 	}
 };

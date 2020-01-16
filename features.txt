@@ -2,7 +2,7 @@ panel features
 
 email
 1. email password change  done
-2. create new email accounts
+2. create new email accounts  done
 3. delete email accounts
 
 domains

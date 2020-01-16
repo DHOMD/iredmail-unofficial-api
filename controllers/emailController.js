@@ -29,7 +29,7 @@ const hashPassword = password => {
 			if (!err && !stderr) {
 				resolve(stdout);
 			}
-			reject('Failed to create new hash');
+			reject('Failed to create new hash' + err);
 		});
 	});
 };
@@ -52,7 +52,7 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 						},
 						err => {
 							if (err) {
-								reject('Failed to change the database');
+								reject('Failed to change the database' + err);
 							}
 							resolve();
 						}
@@ -65,7 +65,7 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 						[newPass, email],
 						err => {
 							if (err) {
-								reject('Failed to update the password');
+								reject('Failed to update the password' + err);
 							}
 							resolve();
 						}
@@ -81,7 +81,7 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 						},
 						err => {
 							if (err) {
-								reject('Failed to change back to default database');
+								reject('Failed to change back to default database' + err);
 							}
 							resolve();
 						}
@@ -113,26 +113,68 @@ exports.createNewEmailAccount = async (userInfo, email, password) => {
 			try {
 				const hash = await hashPassword(password);
 
+				const switchToVmailDB = new Promise((resolve, reject) => {
+					connection.changeUser(
+						{
+							user: process.env.VMAILUSER,
+							password: process.env.VMAILPASS,
+							database: 'vmail'
+						},
+						err => {
+							if (err) {
+								reject('Failed to change the database ' + err);
+							}
+							resolve();
+						}
+					);
+				});
+
 				const createMailbox = new Promise((resolve, reject) => {
 					const username = email.split('@');
 					const user = username[0];
 					const domain = username[1];
 					const date = moment().format('YYYY.MM.DD.HH.mm.ss');
-					const maildir = `domain/${email.charAt(0)}/${email.charAt(1)}/${email.charAt(2)}/${user}-${date}/`;
+					const maildir = `${domain}/${email.charAt(0)}/${email.charAt(1)}/${email.charAt(
+						2
+					)}/${user}-${date}/`;
 
 					connection.query(
 						'INSERT INTO `mailbox` (username, password, name, storagebasedirectory, storagenode, maildir, quota, domain, active, passwordlastchange, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
 						[email, hash, '', '/var/vmail', 'vmail1', maildir, 0, domain, 1],
-						(err, res, fields) => {}
+						(err, res, fields) => {
+							if (err) {
+								reject('Failed to create new user ' + err);
+							}
+							resolve();
+						}
 					);
 				});
 
-				const createForwardings = new Promise((resolve, reject) => {
-					connection.query('INSERT INTO ', [], (err, res, fields) => {});
+				// const createForwardings = new Promise((resolve, reject) => {
+				// 	connection.query('INSERT INTO ', [], (err, res, fields) => {});
+				// });
+
+				const switchToDefaultDB = new Promise((resolve, reject) => {
+					connection.changeUser(
+						{
+							database: process.env.DEFAULTDB,
+							user: process.env.DEFAULTUSER,
+							password: process.env.DEFAULTPASS
+						},
+						err => {
+							if (err) {
+								reject('Failed to change back to default database ' + err);
+							}
+							resolve();
+						}
+					);
 				});
+
+				await Promise.all([switchToVmailDB, createMailbox, switchToDefaultDB]);
+				userMessage = 'Successfully created new email account';
 			} catch (e) {
 				userMessage = 'Something went wrong on our side, try again later or contact admin';
-				console.log('Inside nested catch block');
+				console.log('Inside nested catch block ' + e);
 			}
 		} else {
 			userMessage = 'Not allowed to create new email accounts on this domain';
