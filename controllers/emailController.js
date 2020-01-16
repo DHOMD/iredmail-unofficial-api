@@ -41,7 +41,7 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 
 		if (isAllowed) {
 			try {
-				const newPass = await hashPassword(password);
+				const hash = await hashPassword(password);
 
 				const switchToVmailDB = new Promise((resolve, reject) => {
 					connection.changeUser(
@@ -60,16 +60,12 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 				});
 
 				const updatePassword = new Promise((resolve, reject) => {
-					connection.query(
-						'UPDATE `mailbox` SET `password` = ? WHERE `username` = ?',
-						[newPass, email],
-						err => {
-							if (err) {
-								reject('Failed to update the password' + err);
-							}
-							resolve();
+					connection.query('UPDATE `mailbox` SET `password` = ? WHERE `username` = ?', [hash, email], err => {
+						if (err) {
+							reject('Failed to update the password' + err);
 						}
-					);
+						resolve();
+					});
 				});
 
 				const switchToDefaultDB = new Promise((resolve, reject) => {
