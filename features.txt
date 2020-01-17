@@ -2,7 +2,7 @@ token auth stackoverflow link https://security.stackexchange.com/questions/11937
 
 1. get user to authenticate, return a token for long time that can only be used to get the short-term token
 2. only short-term token has access rights
-3. every 15 minutes the short-term token expires, so the client needs to send request with long-term request to get new short-term token
+3. every 15 minutes the short-term token expires, so the client needs to send request with long-term token to get new short-term token
 4. after the long-term token expires, user must authenticate
 
 panel features
