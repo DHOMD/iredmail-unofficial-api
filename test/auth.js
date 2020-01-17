@@ -43,6 +43,7 @@ describe('/POST auth', () => {
 	it('token should be valid', done => {
 		getTokenValues(token).should.not.be.eql(false);
 		getTokenValues(token).should.have.property('user');
+		getTokenValues(token).should.not.be.empty;
 		done();
 	});
 });
