@@ -6,7 +6,7 @@ const moment = require('moment');
 const isAllowedToModify = (userInfo, email) => {
 	const domain = email.split('@')[1];
 	return new Promise((resolve, reject) => {
-		connection.query(
+		connection.execute(
 			'SELECT `users`.`userName`, `domains`.`domain`, `users_domains`.`isAdmin` FROM `users_domains` LEFT JOIN `users` ON `users_domains`.`userId` = `users`.`id` LEFT JOIN `domains` ON `users_domains`.`domainId` = `domains`.`id` WHERE `users`.`userName` = ? AND `domains`.`domain` = ?',
 			[userInfo.user, domain],
 			(err, res, fields) => {
@@ -60,12 +60,16 @@ exports.changeEmailPassword = async (userInfo, email, password) => {
 				});
 
 				const updatePassword = new Promise((resolve, reject) => {
-					connection.query('UPDATE `mailbox` SET `password` = ? WHERE `username` = ?', [hash, email], err => {
-						if (err) {
-							reject('Failed to update the password' + err);
+					connection.execute(
+						'UPDATE `mailbox` SET `password` = ? WHERE `username` = ?',
+						[hash, email],
+						err => {
+							if (err) {
+								reject('Failed to update the password' + err);
+							}
+							resolve();
 						}
-						resolve();
-					});
+					);
 				});
 
 				const switchToDefaultDB = new Promise((resolve, reject) => {
@@ -134,7 +138,7 @@ exports.createNewEmailAccount = async (userInfo, email, password) => {
 						2
 					)}/${user}-${date}/`;
 
-					connection.query(
+					connection.execute(
 						'INSERT INTO `mailbox` (username, password, name, storagebasedirectory, storagenode, maildir, quota, domain, active, passwordlastchange, created) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())',
 						[email, hash, '', '/var/vmail', 'vmail1', maildir, 0, domain, 1],
 						(err, res, fields) => {
@@ -147,7 +151,7 @@ exports.createNewEmailAccount = async (userInfo, email, password) => {
 				});
 
 				// const createForwardings = new Promise((resolve, reject) => {
-				// 	connection.query('INSERT INTO ', [], (err, res, fields) => {});
+				// 	connection.execute('INSERT INTO ', [], (err, res, fields) => {});
 				// });
 
 				const switchToDefaultDB = new Promise((resolve, reject) => {
