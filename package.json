@@ -1,10 +1,12 @@
 {
-  "name": "api",
+  "name": "controlpanelapi",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "An api to integrate with controlPanel",
+  "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "test": "mocha --timeout 10000"
   },
   "author": "Yaroslav Ishanov",
   "license": "MIT",
