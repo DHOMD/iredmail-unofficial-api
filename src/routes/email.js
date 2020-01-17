@@ -3,6 +3,10 @@ const router = express.Router();
 const getTokenValues = require('../utils/verifyToken');
 const { changeEmailPassword, createNewEmailAccount } = require('../controllers/emailController');
 
+router.get('/', (request, response) => {
+	response.json('Send a POST request to this page');
+});
+
 router.post('/reset', async (request, response) => {
 	const token = request.get('Authorization').replace('Bearer ', '') || null;
 	const { email, newPass } = request.body;

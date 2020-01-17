@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "test": "mocha --timeout 10000"
+    "test": "mocha --timeout 10000",
+    "test-single": "mocha $1"
   },
   "author": "Yaroslav Ishanov",
   "license": "MIT",
