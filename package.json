@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "fix-lint": "prettier src/*.js src/**/*.js --write",
     "test": "mocha --timeout 10000",
     "test-single": "mocha $1"
   },
