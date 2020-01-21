@@ -19,15 +19,19 @@ router.post('/', (request, response) => {
 	connection
 		.execute('SELECT * FROM `users` WHERE `userName` = ?', [userName])
 		.then(async rows => {
-			const row = rows[0][0];
-			const isCorrectPassword = await doesPasswordMatchHash(password, row.password);
-			if (isCorrectPassword) {
-				const refreshToken = generateRefreshToken(userName);
-				// call a function to generate accessToken with refreshToken
+			if (rows[0] != '') {
+				const row = rows[0][0];
+				const isCorrectPassword = await doesPasswordMatchHash(password, row.password);
+				if (isCorrectPassword) {
+					const refreshToken = generateRefreshToken(row.userName);
+					// call a function to generate accessToken with refreshToken
 
-				response.json({ refreshToken });
+					response.json({ refreshToken });
+				} else {
+					response.json('Wrong password');
+				}
 			} else {
-				response.json('Wrong password');
+				response.json('User not found');
 			}
 		})
 		.catch(e => response.json('Something went wrong try again later'));
