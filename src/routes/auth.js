@@ -2,54 +2,38 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const connection = require('../config/database').promise();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const privKey = fs.readFileSync('jwtRS256.key');
+const { generateRefreshToken } = require('../utils/generateToken');
+const { doesPasswordMatchHash } = require('../controllers/authController');
 
 router.get('/', (req, res) => {
 	res.json('Send a post request to this page for authorization');
 });
 
-router.post('/', async (request, response) => {
+router.post('/', (request, response) => {
 	const { userName, password } = request.body;
 
 	if (typeof userName === 'undefined' || typeof password === 'undefined') {
 		response.json('Invalid or missing values');
 	}
 
-	try {
-		const [rows] = await connection.execute('SELECT * FROM `users` WHERE `userName` = ?', [userName]);
+	connection
+		.execute('SELECT * FROM `users` WHERE `userName` = ?', [userName])
+		.then(async rows => {
+			const row = rows[0][0];
+			const isCorrectPassword = await doesPasswordMatchHash(password, row.password);
+			if (isCorrectPassword) {
+				const refreshToken = generateRefreshToken(userName);
+				// call a function to generate accessToken with refreshToken
 
-		if (rows != '') {
-			bcrypt.compare(password, rows[0].password, (err, result) => {
-				if (result) {
-					console.log('Authentication was successful');
-					jwt.sign(
-						{
-							exp: Math.floor(Date.now() / 1000) + 60 * 30, // 30 mins
-							user: rows[0].userName
-						},
-						privKey,
-						{ algorithm: 'RS256' },
-						(err, token) => {
-							if (err) {
-								response.json('Error occured when generating token');
-							} else {
-								response.json({ token });
-							}
-						}
-					);
-				} else {
-					response.json('Incorrect Password');
-				}
-			});
-		} else {
-			response.json('No user found');
-		}
-	} catch (e) {
-		console.log('Failed to authenticate ' + e);
-		response.json('An error has occured during authentication ' + e);
-	}
+				response.json({ refreshToken });
+			} else {
+				response.json('Wrong password');
+			}
+		})
+		.catch(e => response.json('Something went wrong try again later'));
+	// if record is found, generate refreshToken for 1 week and generate AccessToken for 15 min
 });
+
+router.post('/refresh', (request, response) => {});
 
 module.exports = router;
