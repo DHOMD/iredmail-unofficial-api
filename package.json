@@ -8,7 +8,9 @@
     "start": "node src/server.js",
     "fix-lint": "prettier src/*.js src/**/*.js --write",
     "test": "mocha --timeout 10000",
-    "test-single": "mocha $1"
+    "test:e2e": "mocha e2e/*.js",
+    "test:unit": "mocha src/**/*.js",
+    "test:single": "mocha $1"
   },
   "author": "Yaroslav Ishanov",
   "license": "MIT",
