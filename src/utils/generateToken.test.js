@@ -28,6 +28,7 @@ describe('testing refreshToken functionality', () => {
 		console.log(values);
 		values.should.be.an('object');
 		values.should.not.be.empty;
+		values.should.have.property('payload');
 		done();
 	});
 });
