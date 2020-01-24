@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const connection = require('../config/database').promise();
-const { generateRefreshToken } = require('../utils/generateToken');
+const { generateRefreshToken, generateAccessToken } = require('../utils/generateToken');
 const { doesPasswordMatchHash } = require('../controllers/authController');
 
 router.get('/', (req, res) => {
@@ -23,10 +23,9 @@ router.post('/', (request, response) => {
 				const row = rows[0][0];
 				const isCorrectPassword = await doesPasswordMatchHash(password, row.password);
 				if (isCorrectPassword) {
-					const refreshToken = generateRefreshToken(row.userName);
-					// call a function to generate accessToken with refreshToken
-
-					response.json({ refreshToken });
+					const refreshToken = generateRefreshToken(row.userName) || '';
+					const accessToken = generateAccessToken(refreshToken) || '';
+					response.json({ refreshToken, accessToken });
 				} else {
 					response.json('Wrong password');
 				}
