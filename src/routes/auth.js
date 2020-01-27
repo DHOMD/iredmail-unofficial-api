@@ -1,9 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const connection = require('../config/database').promise();
-const { generateRefreshToken, generateAccessToken } = require('../utils/generateToken');
-const { doesPasswordMatchHash } = require('../controllers/authController');
+const { authenticate } = require('../controllers/authController');
 
 router.get('/', (req, res) => {
 	res.json('Send a post request to this page for authorization');
@@ -16,25 +13,16 @@ router.post('/', (request, response) => {
 		response.json('Invalid or missing values');
 	}
 
-	connection
-		.execute('SELECT * FROM `users` WHERE `userName` = ?', [userName])
-		.then(async rows => {
-			if (rows[0] != '') {
-				const row = rows[0][0];
-				const isCorrectPassword = await doesPasswordMatchHash(password, row.password);
-				if (isCorrectPassword) {
-					const refreshToken = generateRefreshToken(row.userName) || '';
-					const accessToken = generateAccessToken(refreshToken) || '';
-					response.json({ refreshToken, accessToken });
-				} else {
-					response.json('Wrong password');
-				}
-			} else {
-				response.json('User not found');
-			}
+	authenticate(userName, password)
+		.then(obj => {
+			const { status, message, refreshToken, accessToken } = obj;
+			response.status(status);
+			response.json({ message, refreshToken, accessToken });
 		})
-		.catch(e => response.json('Something went wrong try again later'));
-	// if record is found, generate refreshToken for 1 week and generate AccessToken for 15 min
+		.catch(() => {
+			response.status(503);
+			response.json({ message: 'Something went wrong, try again later', refreshToken: '', accessToken: '' });
+		});
 });
 
 router.post('/refresh', (request, response) => {});
