@@ -2,7 +2,6 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const server = require('../src/server');
 const should = chai.should();
-const getTokenValues = require('../src/utils/verifyToken');
 
 chai.use(chaiHttp);
 
