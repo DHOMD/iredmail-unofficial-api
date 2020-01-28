@@ -14,4 +14,12 @@ const isTokenValid = (token, type) => {
 	return false;
 };
 
-module.exports = { isTokenValid };
+const getTokenValues = (token, type) => {
+	const isValid = isTokenValid(token, type);
+	if (isValid) {
+		return jwt.decode(token, { complete: true });
+	}
+	return null;
+};
+
+module.exports = { isTokenValid, getTokenValues };

@@ -2,16 +2,7 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const uuid = require('uuid/v4');
 const privKey = fs.readFileSync('jwtRS256.key');
-const pubKey = fs.readFileSync('jwtRS256.key.pub');
-const { isTokenValid } = require('./verifyToken');
-
-const getTokenValues = (token, type) => {
-	const isValid = isTokenValid(token, type);
-	if (isValid) {
-		return jwt.decode(token, { complete: true });
-	}
-	return null;
-};
+const { getTokenValues } = require('./verifyToken');
 
 const generateAccessToken = refreshToken => {
 	const values = getTokenValues(refreshToken, 'refreshToken');
@@ -51,7 +42,5 @@ const refreshToken = () => {};
 
 module.exports = {
 	generateRefreshToken,
-	generateAccessToken,
-	isTokenValid,
-	getTokenValues
+	generateAccessToken
 };
