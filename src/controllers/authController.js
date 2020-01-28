@@ -25,6 +25,7 @@ const authenticate = async (userName, password) => {
 		let isCorrectPassword;
 
 		try {
+			// bcrypt throws error if password doesn't match salt
 			isCorrectPassword = await doesPasswordMatchHash(password, row.password);
 		} catch (e) {
 			isCorrectPassword = false;
