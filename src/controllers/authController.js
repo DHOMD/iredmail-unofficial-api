@@ -22,7 +22,13 @@ const authenticate = async (userName, password) => {
 		const rows = await findUser(userName);
 		const row = rows[0][0];
 
-		const isCorrectPassword = await doesPasswordMatchHash(password, row.password);
+		let isCorrectPassword;
+
+		try {
+			isCorrectPassword = await doesPasswordMatchHash(password, row.password);
+		} catch (e) {
+			isCorrectPassword = false;
+		}
 
 		if (isCorrectPassword) {
 			refreshToken = generateRefreshToken(row.userName) || '';
