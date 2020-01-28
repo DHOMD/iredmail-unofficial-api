@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../controllers/authController');
+const { authenticate, refresh } = require('../controllers/authController');
 
 router.get('/', (req, res) => {
 	res.json('Send a post request to this page for authorization');
@@ -25,6 +25,17 @@ router.post('/', (request, response) => {
 		});
 });
 
-router.post('/refresh', (request, response) => {});
+router.post('/refresh', (request, response) => {
+	const { refreshToken } = request.body;
+
+	if (typeof refreshToken === 'undefined') {
+		response.json('Invalid or missing values');
+	}
+
+	const { status, message, accessToken } = refresh(refreshToken);
+
+	response.status(status);
+	response.json({ message, accessToken });
+});
 
 module.exports = router;

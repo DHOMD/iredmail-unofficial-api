@@ -47,8 +47,17 @@ const authenticate = async (userName, password) => {
 	return { status, message, refreshToken, accessToken };
 };
 
+const refresh = refreshToken => {
+	const accessToken = generateAccessToken(refreshToken);
+	if (accessToken) {
+		return { status: 200, message: 'Successfully updated the token', accessToken };
+	}
+	return { status: 400, message: 'Invalid or expired token', accessToken: '' };
+};
+
 module.exports = {
 	doesPasswordMatchHash,
 	findUser,
-	authenticate
+	authenticate,
+	refresh
 };
