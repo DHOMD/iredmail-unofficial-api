@@ -3,23 +3,7 @@ const jwt = require('jsonwebtoken');
 const uuid = require('uuid/v4');
 const privKey = fs.readFileSync('jwtRS256.key');
 const pubKey = fs.readFileSync('jwtRS256.key.pub');
-
-const isTokenValid = (token, type) => {
-	try {
-		const verified = jwt.verify(token, pubKey, {
-			issuer: 'api.nettifixi.fi',
-			algorithms: ['RS256']
-		});
-
-		if (verified && verified.type === type) {
-			return true;
-		}
-		return false;
-	} catch (e) {
-		console.log('Token could not be verified');
-		return false;
-	}
-};
+const { isTokenValid } = require('./verifyToken');
 
 const getTokenValues = (token, type) => {
 	const isValid = isTokenValid(token, type);
