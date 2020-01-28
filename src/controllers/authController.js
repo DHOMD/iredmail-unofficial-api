@@ -1,6 +1,5 @@
 const fs = require('fs');
 const bcrypt = require('bcrypt');
-const privKey = fs.readFileSync('jwtRS256.key');
 const connection = require('../config/database').promise();
 const { generateRefreshToken, generateAccessToken } = require('../utils/generateToken');
 
