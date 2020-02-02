@@ -7,7 +7,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "fix-lint": "prettier src/*.js src/**/*.js --write",
-    "test": "mocha */**/*.js --timeout 10000",
+    "test": "mocha e2e/*.js src/**/*.js --timeout 10000",
     "test:e2e": "mocha e2e/*.js",
     "test:unit": "mocha src/**/*.js",
     "test:only": "mocha $1"
@@ -24,6 +24,7 @@
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
     "mysql2": "^2.1.0",
+    "sequelize": "^5.21.3",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
