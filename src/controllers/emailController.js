@@ -8,11 +8,11 @@ const isAllowedToModify = (userInfo, email) => {
 	return new Promise((resolve, reject) => {
 		connection.execute(
 			'SELECT `users`.`userName`, `domains`.`domain`, `users_domains`.`isAdmin` FROM `users_domains` LEFT JOIN `users` ON `users_domains`.`userId` = `users`.`id` LEFT JOIN `domains` ON `users_domains`.`domainId` = `domains`.`id` WHERE `users`.`userName` = ? AND `domains`.`domain` = ?',
-			[userInfo.user, domain],
+			[userInfo.payload.username, domain],
 			(err, res, fields) => {
 				if (err) {
 					reject(err.message);
-				} else if (res != '' && userInfo.user != res[0].userName && res[0].isAdmin != 1) {
+				} else if (res != '' && userInfo.payload.username != res[0].userName && res[0].isAdmin != 1) {
 					resolve(false);
 				} else if (res != '') {
 					resolve(true);
@@ -150,9 +150,20 @@ exports.createNewEmailAccount = async (userInfo, email, password) => {
 					);
 				});
 
-				// const createForwardings = new Promise((resolve, reject) => {
-				// 	connection.execute('INSERT INTO ', [], (err, res, fields) => {});
-				// });
+				const createForwardings = new Promise((resolve, reject) => {
+					const username = email.split('@');
+					const domain = username[1];
+					connection.execute(
+						'INSERT INTO `forwardings` (address, forwarding, domain, dest_domain, is_forwarding) VALUES (?, ?, ?, ?, 1)',
+						[email, email, domain, domain],
+						(err, res, fields) => {
+							if (err) {
+								reject('Failed to insert new user into forwardings ' + err);
+							}
+							resolve();
+						}
+					);
+				});
 
 				const switchToDefaultDB = new Promise((resolve, reject) => {
 					connection.changeUser(
@@ -170,7 +181,7 @@ exports.createNewEmailAccount = async (userInfo, email, password) => {
 					);
 				});
 
-				await Promise.all([switchToVmailDB, createMailbox, switchToDefaultDB]);
+				await Promise.all([switchToVmailDB, createMailbox, createForwardings, switchToDefaultDB]);
 				userMessage = 'Successfully created new email account';
 			} catch (e) {
 				userMessage = 'Something went wrong on our side, try again later or contact admin';

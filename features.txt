@@ -15,6 +15,10 @@ email
 domains
 1. add domains and subdomains
 
+
+# TODO
+1. store ip address of server in the users database
+
 wordpress
 1. create new wordpress sites
 2. update site plugins and themes

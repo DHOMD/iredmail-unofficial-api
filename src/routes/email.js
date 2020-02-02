@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const getTokenValues = require('../utils/verifyToken');
+const { getTokenValues } = require('../utils/verifyToken');
 const { changeEmailPassword, createNewEmailAccount } = require('../controllers/emailController');
 
 router.get('/', (request, response) => {
@@ -10,7 +10,7 @@ router.get('/', (request, response) => {
 router.post('/reset', async (request, response) => {
 	const token = request.get('Authorization').replace('Bearer ', '') || null;
 	const { email, newPass } = request.body;
-	const userInfo = getTokenValues(token);
+	const userInfo = getTokenValues(token, 'accessToken');
 
 	if (!userInfo) {
 		response.json('Token is invalid or expired');
@@ -27,7 +27,7 @@ router.post('/reset', async (request, response) => {
 router.post('/add', async (request, response) => {
 	const token = request.get('Authorization').replace('Bearer ', '') || null;
 	const { email, password } = request.body;
-	const userInfo = getTokenValues(token);
+	const userInfo = getTokenValues(token, 'accessToken');
 
 	if (!userInfo) {
 		response.json('Token is invalid or expired');
