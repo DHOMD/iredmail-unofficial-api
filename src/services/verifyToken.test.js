@@ -36,7 +36,7 @@ describe('testing getTokenValues', () => {
 	it('accessToken should store values', done => {
 		const values = getTokenValues(accessToken, 'accessToken');
 		should.exist(values);
-		values.hsould.have.property('payload');
+		values.should.have.property('payload');
 		values.payload.should.not.be.empty;
 	});
 });
