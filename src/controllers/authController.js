@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const connection = require('../config/database').promise();
-const { generateRefreshToken, generateAccessToken } = require('../utils/generateToken');
+const { generateRefreshToken, generateAccessToken } = require('../services/generateToken');
 
 const doesPasswordMatchHash = (password, hash) => {
 	return bcrypt.compare(password, hash);

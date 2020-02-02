@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getTokenValues } = require('../utils/verifyToken');
+const { getTokenValues } = require('../services/verifyToken');
 const { changeEmailPassword, createNewEmailAccount } = require('../controllers/emailController');
 
 router.get('/', (request, response) => {
