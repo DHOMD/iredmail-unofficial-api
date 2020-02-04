@@ -5,6 +5,9 @@ token auth stackoverflow link https://security.stackexchange.com/questions/11937
 3. every 15 minutes the short-term token expires, so the client needs to send request with long-term token to get new short-term token
 4. after the long-term token expires, user must authenticate
 
+#starting a script
+node -r dotenv/config your_script.js
+
 panel features
 
 email
@@ -18,6 +21,7 @@ domains
 
 # TODO
 1. store ip address of server in the users database
+2. change all table names to plural forms for example `users` will be `user` 
 
 wordpress
 1. create new wordpress sites
