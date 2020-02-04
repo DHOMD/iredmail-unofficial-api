@@ -306,6 +306,75 @@ const Mailbox = sequelize.define(
 	}
 );
 
-const Forwarding = sequelize.define('forwardings', {});
+const Forwarding = sequelize.define(
+	'forwardings',
+	{
+		id: {
+			type: DataTypes.BIGINT(20).UNSIGNED,
+			primaryKey: true,
+			autoIncrement: true,
+			allowNull: false,
+			defaultValue: null
+		},
+		address: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
+		forwarding: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
+		domain: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
+		dest_domain: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			defaultValue: ''
+		},
+		is_maillist: {
+			type: DataTypes.TINYINT(1),
+			allowNull: false,
+			defaultValue: 0
+		},
+		is_list: {
+			type: DataTypes.TINYINT(1),
+			allowNull: false,
+			defaultValue: 0
+		},
+		is_forwarding: {
+			type: DataTypes.TINYINT(1),
+			allowNull: false,
+			defaultValue: 0
+		},
+		is_alias: {
+			type: DataTypes.TINYINT(1),
+			allowNull: false,
+			defaultValue: 0
+		},
+		active: {
+			type: DataTypes.TINYINT(1),
+			allowNull: false,
+			defaultValue: 1
+		}
+	},
+	{
+		timestamps: false,
+		freezeTableName: true,
+		tableName: 'forwardings',
+		indexes: [
+			{ unique: false, fields: ['address'] },
+			{ unique: false, fields: ['domain'] },
+			{ unique: false, fields: ['dest_domain'] },
+			{ unique: false, fields: ['is_maillist'] },
+			{ unique: false, fields: ['is_list'] },
+			{ unique: false, fields: ['is_alias'] }
+		]
+	}
+);
 
-module.exports = { Mailbox };
+module.exports = { Mailbox, Forwarding };
