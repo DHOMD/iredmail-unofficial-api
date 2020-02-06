@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const connection = require('../config/database').promise();
+const { User } = require('../models/controlPanel');
 const { generateRefreshToken, generateAccessToken } = require('../services/generateToken');
 
 const doesPasswordMatchHash = (password, hash) => {
@@ -7,7 +7,7 @@ const doesPasswordMatchHash = (password, hash) => {
 };
 
 const findUser = userName => {
-	return connection.execute('SELECT userName, password FROM `users` WHERE `userName` = ?', [userName]);
+	return User.findAll({ where: { userName }, attributes: ['userName', 'password'] });
 };
 
 const authenticate = async (userName, password) => {
@@ -18,12 +18,12 @@ const authenticate = async (userName, password) => {
 
 	try {
 		const rows = await findUser(userName);
-		const row = rows[0][0];
+		const row = rows[0];
 
 		let isCorrectPassword;
 
 		try {
-			// bcrypt throws error if password doesn't match salt
+			// bcrypt throws error if password doesn't match hash
 			isCorrectPassword = await doesPasswordMatchHash(password, row.password);
 		} catch (e) {
 			isCorrectPassword = false;

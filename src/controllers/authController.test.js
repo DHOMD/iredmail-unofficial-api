@@ -13,7 +13,7 @@ describe('testing findUser', () => {
 	it('should find user', done => {
 		findUser(testObj.userName)
 			.then(rows => {
-				const row = rows[0][0];
+				const row = rows[0];
 				row.password.should.be.a('string');
 				row.password.should.not.be.empty;
 				password = row.password;
@@ -45,7 +45,6 @@ describe('testing authenticate method', () => {
 	it('should log to console', done => {
 		authenticate(testObj.userName, testObj.password)
 			.then(obj => {
-				console.log(obj);
 				done();
 			})
 			.catch(done);
