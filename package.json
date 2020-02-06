@@ -4,7 +4,7 @@
   "description": "An api to integrate with controlPanel",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
+    "dev": "nodemon -r dotenv/config src/server.js",
     "start": "node -r dotenv/config src/server.js",
     "fix-lint": "prettier src/*.js src/**/*.js --write",
     "test": "mocha e2e/*.js src/**/*.js --timeout 10000",
