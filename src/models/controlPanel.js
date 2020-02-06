@@ -61,13 +61,16 @@ const UserDomain = sequelize.define(
 			defaultValue: 0
 		}
 	},
-	{ timestamps: false }
+	{ timestamps: false, freezeTableName: true }
 	// https://stackoverflow.com/questions/42195348/how-to-define-unique-index-on-multiple-columns-in-sequelize/42199137
 	// Sequelize creates unique constraint on many-to-many relations
 	// { uniqueKeys: actions_unique: { fields: ['userId', 'domainId'] } }
 );
 
-User.belongsToMany(Domain, { through: 'users_domains' });
-Domain.belongsToMany(User, { through: 'users_domains' });
+User.belongsToMany(Domain, { through: 'users_domains', foreignKey: 'userId' });
+Domain.belongsToMany(User, { through: 'users_domains', foreignKey: 'domainId' });
+
+UserDomain.belongsTo(User);
+UserDomain.belongsTo(Domain);
 
 module.exports = { User, Domain, UserDomain };
