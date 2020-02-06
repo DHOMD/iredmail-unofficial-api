@@ -1,6 +1,6 @@
 const chai = require('chai');
-const should = chai.should();
-const { isAllowedToModify } = require('./emailController');
+chai.should();
+const { isAllowedToModify, hashPassword } = require('./emailController');
 
 const userInfo = {
 	payload: {
@@ -10,10 +10,21 @@ const userInfo = {
 
 describe('testing isAllowedToModify', () => {
 	it('should be allowed to modify', done => {
-		isAllowedToModify(userInfo, 'info@nettifixi.fi; DROP TABLE `domains`')
+		isAllowedToModify(userInfo, 'info@nettifixi.fi')
 			.then(flag => {
 				flag.should.be.a('boolean');
 				flag.should.eql(true);
+				done();
+			})
+			.catch(done);
+	});
+});
+
+describe('testing hashPassword', () => {
+	it('should generate a sha512 hash', done => {
+		hashPassword('salasana1; touch file.txt')
+			.then(hash => {
+				hash.should.be.a('string');
 				done();
 			})
 			.catch(done);

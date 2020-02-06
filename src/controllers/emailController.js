@@ -199,4 +199,4 @@ exports.createNewEmailAccount = async (userInfo, email, password) => {
 	return userMessage;
 };
 
-module.exports = { isAllowedToModify };
+module.exports = { isAllowedToModify, hashPassword };
