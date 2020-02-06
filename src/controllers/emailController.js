@@ -1,29 +1,31 @@
 require('dotenv').config();
 const connection = require('../config/database');
+const { UserDomain, User, Domain } = require('../models/controlPanel');
 const { exec } = require('child_process');
 const moment = require('moment');
 
 const isAllowedToModify = (userInfo, email) => {
 	const domain = email.split('@')[1];
+
 	return new Promise((resolve, reject) => {
-		connection.execute(
-			'SELECT `users`.`userName`, `domains`.`domain`, `users_domains`.`isAdmin` FROM `users_domains` LEFT JOIN `users` ON `users_domains`.`userId` = `users`.`id` LEFT JOIN `domains` ON `users_domains`.`domainId` = `domains`.`id` WHERE `users`.`userName` = ? AND `domains`.`domain` = ?',
-			[userInfo.payload.username, domain],
-			(err, res, fields) => {
-				if (err) {
-					reject(err.message);
-				} else if (res != '' && userInfo.payload.username != res[0].userName && res[0].isAdmin != 1) {
+		UserDomain.findAll({
+			include: [
+				{ model: User, where: { userName: userInfo.payload.username }, required: true },
+				{ model: Domain, where: { domain }, required: true }
+			]
+		})
+			.then(rows => {
+				if (rows[0] == '' || (userInfo.payload.username != rows[0].userName && rows[0].isAdmin != 1)) {
 					resolve(false);
-				} else if (res != '') {
-					resolve(true);
 				}
-				resolve(false);
-			}
-		);
+				resolve(true);
+			})
+			.catch(reject);
 	});
 };
 
 const hashPassword = password => {
+	// TODO: sanitize input from semicolons + escape html entities
 	return new Promise((resolve, reject) => {
 		exec(`doveadm pw -s 'ssha512' -p ${password}`, (err, stdout, stderr) => {
 			if (!err && !stderr) {
@@ -196,3 +198,5 @@ exports.createNewEmailAccount = async (userInfo, email, password) => {
 	}
 	return userMessage;
 };
+
+module.exports = { isAllowedToModify };
