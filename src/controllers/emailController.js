@@ -3,7 +3,6 @@ const { fn } = require('sequelize');
 const { UserDomain, User, Domain } = require('../models/controlPanel');
 const { Mailbox, Forwarding } = require('../models/vmail');
 const { exec } = require('child_process');
-const moment = require('moment');
 
 const isAllowedToModify = (userInfo, email) => {
 	const domain = email.split('@')[1];
@@ -75,7 +74,7 @@ const createNewEmailAccount = async (userInfo, email, password) => {
 				const username = email.split('@');
 				const user = username[0];
 				const domain = username[1];
-				const date = moment().format('YYYY.MM.DD.HH.mm.ss');
+				const date = fn('now');
 				const maildir = `${domain}/${email.charAt(0)}/${email.charAt(1)}/${email.charAt(2)}/${user}-${date}/`;
 
 				const createMailbox = Mailbox.create({

@@ -45,7 +45,7 @@ describe('testing changeEmailPassword', () => {
 
 describe('testing createNewEmailAccount', () => {
 	it('should create new email', done => {
-		createNewEmailAccount(userInfo, 'temp@nettifixi.fi', 'salasana123')
+		createNewEmailAccount(userInfo, 'temporary@nettifixi.fi', 'salasana123')
 			.then(res => {
 				res.should.be.a('string');
 				res.should.eql('Successfully created new email account');
