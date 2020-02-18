@@ -1,6 +1,6 @@
 const chai = require('chai');
 const should = chai.should();
-const { doesPasswordMatchHash, authenticate, findUser } = require('./authController');
+const { doesPasswordMatchHash, authenticate, findUser } = require('./auth');
 
 let testObj = {
 	userName: 'info@nettifixi.fi',

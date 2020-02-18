@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { getTokenValues } = require('../utils/verifyToken');
-const { changeEmailPassword, createNewEmailAccount, removeEmailAccount } = require('../controllers/emailController');
+const { changeEmailPassword, createNewEmailAccount, removeEmailAccount } = require('../controllers/email');
 const { header, body, validationResult } = require('express-validator');
 
 router.post(

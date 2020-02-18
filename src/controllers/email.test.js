@@ -1,11 +1,6 @@
 const chai = require('chai');
 chai.should();
-const {
-	isAllowedToModify,
-	changeEmailPassword,
-	createNewEmailAccount,
-	removeEmailAccount
-} = require('./emailController');
+const { isAllowedToModify, changeEmailPassword, createNewEmailAccount, removeEmailAccount } = require('./email');
 
 const userInfo = {
 	payload: {

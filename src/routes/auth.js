@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate, refresh } = require('../controllers/authController');
+const { authenticate, refresh } = require('../controllers/auth');
 
 router.get('/', (req, res) => {
 	res.json('Send a post request to this page for authorization');
