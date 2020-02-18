@@ -3,10 +3,15 @@ const jwt = require('jsonwebtoken');
 const pubKey = fs.readFileSync('jwtRS256.key.pub');
 
 const isTokenValid = (token, type) => {
-	const verified = jwt.verify(token, pubKey, {
-		issuer: 'api.nettifixi.fi',
-		algorithms: ['RS256']
-	});
+	let verified;
+	try {
+		verified = jwt.verify(token, pubKey, {
+			issuer: 'api.nettifixi.fi',
+			algorithms: ['RS256']
+		});
+	} catch (e) {
+		return false;
+	}
 
 	if (verified && verified.type === type) {
 		return true;
@@ -16,10 +21,15 @@ const isTokenValid = (token, type) => {
 
 const getTokenValues = (token, type) => {
 	const isValid = isTokenValid(token, type);
+	let values;
 	if (isValid) {
-		return jwt.decode(token, { complete: true });
+		try {
+			values = jwt.decode(token, { complete: true });
+		} catch (e) {
+			values = null;
+		}
 	}
-	return null;
+	return values || null;
 };
 
 module.exports = { isTokenValid, getTokenValues };
