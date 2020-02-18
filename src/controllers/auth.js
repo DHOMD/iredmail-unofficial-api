@@ -1,13 +1,9 @@
 const bcrypt = require('bcrypt');
-const { User } = require('../models/controlPanel');
 const { generateRefreshToken, generateAccessToken } = require('../utils/generateToken');
+const { findUser } = require('../services/auth');
 
 const doesPasswordMatchHash = (password, hash) => {
 	return bcrypt.compare(password, hash);
-};
-
-const findUser = userName => {
-	return User.findAll({ where: { userName }, attributes: ['userName', 'password'] });
 };
 
 const authenticate = async (userName, password) => {
@@ -57,7 +53,6 @@ const refresh = refreshToken => {
 
 module.exports = {
 	doesPasswordMatchHash,
-	findUser,
 	authenticate,
 	refresh
 };
