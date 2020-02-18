@@ -1,4 +1,4 @@
-const { getUser, createEmail, updatePassword } = require('../services/email');
+const { getUser, createEmail, updatePassword, removeEmail } = require('../services/email');
 const { hashPassword } = require('../utils/generatePassword');
 
 const isAllowedToModify = async (userInfo, email) => {
@@ -18,63 +18,55 @@ const isAllowedToModify = async (userInfo, email) => {
 };
 
 const changeEmailPassword = async (userInfo, email, password) => {
-	let message;
-	let status;
+	const isAllowed = await isAllowedToModify(userInfo, email);
 
-	try {
-		const isAllowed = await isAllowedToModify(userInfo, email);
+	if (isAllowed) {
+		try {
+			const hash = await hashPassword(password);
 
-		if (isAllowed) {
-			try {
-				const hash = await hashPassword(password);
+			await updatePassword(email, hash);
 
-				await updatePassword(email, hash);
-
-				message = 'Password has been successfully changed';
-				status = 200;
-			} catch (e) {
-				message = 'Something went wrong on our side, try again later or contact admin';
-				status = 500;
-			}
-		} else {
-			message = 'Not allowed to modify password of the current email';
-			status = 503;
+			return { message: 'Password has been successfully changed', status: 200 };
+		} catch {
+			return { message: 'Someting went wrong on our side, try again later or contact admin' };
 		}
-	} catch (e) {
-		message = 'Something went wrong, try again later';
-		status = 500;
 	}
-	return { message, status };
+
+	return { message: 'Not allowed to modify password of this email', status: 503 };
 };
 
 const createNewEmailAccount = async (userInfo, email, password) => {
-	let status;
-	let message;
+	const isAllowed = await isAllowedToModify(userInfo, email);
 
-	try {
-		const isAllowed = await isAllowedToModify(userInfo, email);
+	if (isAllowed) {
+		try {
+			const hash = await hashPassword(password);
 
-		if (isAllowed) {
-			try {
-				const hash = await hashPassword(password);
+			await createEmail(email, hash);
 
-				await createEmail(email, hash);
-
-				message = 'Successfully created new email account';
-				status = 200;
-			} catch (e) {
-				message = 'Something went wrong on our side, try again later or contact admin';
-				status = 500;
-			}
-		} else {
-			message = 'Not allowed to create new email accounts on this domain';
-			status = 503;
+			return { message: 'Successfully created new email account', status: 200 };
+		} catch {
+			return { message: 'Something went wrong on our side, try again later or contact admin', status: 500 };
 		}
-	} catch (e) {
-		message = 'Something went wrong, try again later';
-		status = 500;
 	}
-	return { message, status };
+
+	return { message: 'Not allowed to create new email accounts on this domain', status: 503 };
 };
 
-module.exports = { isAllowedToModify, changeEmailPassword, createNewEmailAccount };
+const removeEmailAccount = async (userInfo, email) => {
+	const isAllowed = await isAllowedToModify(userInfo, email);
+
+	if (isAllowed) {
+		try {
+			await removeEmail(email);
+
+			return { message: 'Successfully removed email account', status: 200 };
+		} catch {
+			return { message: 'Something went wrong on our side, try again later or contact admin', status: 500 };
+		}
+	}
+
+	return { message: 'Not allowed to remove email accounts on this domain', status: 503 };
+};
+
+module.exports = { isAllowedToModify, changeEmailPassword, createNewEmailAccount, removeEmailAccount };

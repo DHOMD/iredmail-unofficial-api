@@ -47,4 +47,8 @@ const createEmail = (email, hash) => {
 	return Promise.all([createMailbox, createForwarding]);
 };
 
-module.exports = { getUser, createEmail, updatePassword };
+const removeEmail = email => {
+	return Mailbox.destroy({ where: { username: email } });
+};
+
+module.exports = { getUser, createEmail, updatePassword, removeEmail };

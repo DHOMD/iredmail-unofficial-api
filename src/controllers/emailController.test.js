@@ -1,6 +1,11 @@
 const chai = require('chai');
 chai.should();
-const { isAllowedToModify, changeEmailPassword, createNewEmailAccount } = require('./emailController');
+const {
+	isAllowedToModify,
+	changeEmailPassword,
+	createNewEmailAccount,
+	removeEmailAccount
+} = require('./emailController');
 
 const userInfo = {
 	payload: {
@@ -35,11 +40,24 @@ describe('testing changeEmailPassword', () => {
 
 describe('testing createNewEmailAccount', () => {
 	it('should create new email', done => {
-		createNewEmailAccount(userInfo, 'temporar@nettifixi.fi', 'salasana123')
+		createNewEmailAccount(userInfo, 'temporary@nettifixi.fi', 'salasana123')
 			.then(res => {
 				res.should.be.an('object');
 				res.status.should.eql(200);
 				res.message.should.eql('Successfully created new email account');
+				done();
+			})
+			.catch(done);
+	});
+});
+
+describe('testing removeEmailAccount', () => {
+	it('should remove recently created email', done => {
+		removeEmailAccount(userInfo, 'temporary@nettifixi.fi')
+			.then(res => {
+				res.should.be.an('object');
+				res.status.should.be.eql(200);
+				res.message.should.eql('Successfully removed email account');
 				done();
 			})
 			.catch(done);
