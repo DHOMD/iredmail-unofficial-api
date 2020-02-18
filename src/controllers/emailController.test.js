@@ -1,6 +1,6 @@
 const chai = require('chai');
 chai.should();
-const { isAllowedToModify, hashPassword, changeEmailPassword, createNewEmailAccount } = require('./emailController');
+const { isAllowedToModify, changeEmailPassword, createNewEmailAccount } = require('./emailController');
 
 const userInfo = {
 	payload: {
@@ -20,23 +20,13 @@ describe('testing isAllowedToModify', () => {
 	});
 });
 
-describe('testing hashPassword', () => {
-	it('should generate a sha512 hash', done => {
-		hashPassword('salasana1; touch file.txt')
-			.then(hash => {
-				hash.should.be.a('string');
-				done();
-			})
-			.catch(done);
-	});
-});
-
 describe('testing changeEmailPassword', () => {
 	it('should update email password', done => {
 		changeEmailPassword(userInfo, 'info@nettifixi.fi', 'salasana123')
 			.then(res => {
-				res.should.be.a('string');
-				res.should.eql('Password has been successfully changed');
+				res.should.be.an('object');
+				res.status.should.eql(200);
+				res.message.should.eql('Password has been successfully changed');
 				done();
 			})
 			.catch(done);
@@ -45,10 +35,11 @@ describe('testing changeEmailPassword', () => {
 
 describe('testing createNewEmailAccount', () => {
 	it('should create new email', done => {
-		createNewEmailAccount(userInfo, 'temporary@nettifixi.fi', 'salasana123')
+		createNewEmailAccount(userInfo, 'temporar@nettifixi.fi', 'salasana123')
 			.then(res => {
-				res.should.be.a('string');
-				res.should.eql('Successfully created new email account');
+				res.should.be.an('object');
+				res.status.should.eql(200);
+				res.message.should.eql('Successfully created new email account');
 				done();
 			})
 			.catch(done);

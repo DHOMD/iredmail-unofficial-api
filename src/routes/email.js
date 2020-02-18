@@ -1,44 +1,81 @@
 const express = require('express');
 const router = express.Router();
-const { getTokenValues } = require('../services/verifyToken');
+const { getTokenValues } = require('../utils/verifyToken');
 const { changeEmailPassword, createNewEmailAccount } = require('../controllers/emailController');
+const { header, body, validationResult } = require('express-validator');
 
-router.get('/', (request, response) => {
-	response.json('Send a POST request to this page');
-});
+router.post(
+	'/reset',
+	[
+		header('Authorization', 'Missing bearer token')
+			.not()
+			.isEmpty(),
+		body('email').isEmail(),
+		body('newPass', 'Password must be at least 8 characters long and contain at least one number')
+			.not()
+			.isEmpty()
+			.trim()
+			.blacklist('; ')
+			.escape()
+			.isLength({ min: 8 })
+			.matches(/\d/)
+	],
+	async (request, response) => {
+		const errors = validationResult(request).array();
 
-router.post('/reset', async (request, response) => {
-	const token = request.get('Authorization').replace('Bearer ', '') || null;
-	const { email, newPass } = request.body;
-	const userInfo = getTokenValues(token, 'accessToken');
+		if (errors != '') {
+			return response.status(400).json({ message: 'Invalid values', errors });
+		}
 
-	if (!userInfo) {
-		response.json('Token is invalid or expired');
-	} else if (typeof email === 'undefined' || typeof newPass === 'undefined') {
-		response.json('Invalid values');
-	} else if (newPass.length < 8 || !/\d/.test(newPass)) {
-		response.json('Password must at least be 8 characters long and contain at least one digit');
-	} else {
-		const message = await changeEmailPassword(userInfo, email, newPass);
-		response.json(message);
+		const token = request.get('Authorization').replace('Bearer ', '') || null;
+		const { email, newPass } = request.body;
+
+		const userInfo = getTokenValues(token, 'accessToken');
+
+		if (!userInfo) {
+			return response.status(400).json('Token is invalid or expired');
+		}
+
+		const { message, status } = await changeEmailPassword(userInfo, email, newPass);
+		return response.status(status).json(message);
 	}
-});
+);
 
-router.post('/add', async (request, response) => {
-	const token = request.get('Authorization').replace('Bearer ', '') || null;
-	const { email, password } = request.body;
-	const userInfo = getTokenValues(token, 'accessToken');
+router.post(
+	'/add',
+	[
+		header('Authorization', 'Missing bearer token')
+			.not()
+			.isEmpty(),
+		body('email').isEmail(),
+		body('password', 'Password must be at least 8 characters long and contain at least one number')
+			.not()
+			.isEmpty()
+			.trim()
+			.blacklist('; ')
+			.escape()
+			.isLength({ min: 8 })
+			.matches(/\d/)
+	],
+	async (request, response) => {
+		const errors = validationResult(request).array();
 
-	if (!userInfo) {
-		response.json('Token is invalid or expired');
-	} else if (typeof email === 'undefined' || typeof password === 'undefined') {
-		response.json('Invalid values');
-	} else if (password.length < 8 || !/\d/.test(password)) {
-		response.json('Password must at least be 8 characters long and contain at least one digit');
-	} else {
-		const message = await createNewEmailAccount(userInfo, email, password);
-		response.json(message);
+		if (errors != '') {
+			return response.status(400).json({ message: 'Invalid values', errors });
+		}
+
+		const token = request.get('Authorization').replace('Bearer ', '') || null;
+		const { email, password } = request.body;
+
+		const userInfo = getTokenValues(token, 'accessToken');
+
+		if (!userInfo) {
+			return response.status(400).json('Token is invalid or expired');
+		}
+
+		const { message, status } = await createNewEmailAccount(userInfo, email, password);
+		return response.status(status).json(message);
 	}
-});
+);
 
 module.exports = router;

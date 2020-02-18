@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const { User } = require('../models/controlPanel');
-const { generateRefreshToken, generateAccessToken } = require('../services/generateToken');
+const { generateRefreshToken, generateAccessToken } = require('../utils/generateToken');
 
 const doesPasswordMatchHash = (password, hash) => {
 	return bcrypt.compare(password, hash);

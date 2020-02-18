@@ -11,17 +11,18 @@ router.post('/', (request, response) => {
 
 	if (typeof userName === 'undefined' || typeof password === 'undefined') {
 		response.json('Invalid or missing values');
+		return;
 	}
 
 	authenticate(userName, password)
 		.then(obj => {
 			const { status, message, refreshToken, accessToken } = obj;
-			response.status(status);
-			response.json({ message, refreshToken, accessToken });
+			response.status(status).json({ message, refreshToken, accessToken });
 		})
 		.catch(() => {
-			response.status(503);
-			response.json({ message: 'Something went wrong, try again later', refreshToken: '', accessToken: '' });
+			response
+				.status(503)
+				.json({ message: 'Something went wrong, try again later', refreshToken: '', accessToken: '' });
 		});
 });
 
