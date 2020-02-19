@@ -22,8 +22,8 @@ router.post(
 		}
 
 		const { userName, password } = request.body;
-
 		const { status, message, refreshToken, accessToken } = await authenticate(userName, password);
+
 		return response.status(status).json({ message, refreshToken, accessToken });
 	}
 );
