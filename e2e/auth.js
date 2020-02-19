@@ -5,17 +5,17 @@ const should = chai.should();
 
 chai.use(chaiHttp);
 
-describe('/GET auth', () => {
-	it('it should GET a 200 request status and ask for authorization', done => {
-		chai.request(server)
-			.get('/auth')
-			.end((err, res) => {
-				res.should.have.status(200);
-				res.body.should.be.eql('Send a post request to this page for authorization');
-				done();
-			});
-	});
-});
+// describe('/GET auth', () => {
+// 	it('it should GET a 200 request status and ask for authorization', done => {
+// 		chai.request(server)
+// 			.get('/auth')
+// 			.end((err, res) => {
+// 				res.should.have.status(200);
+// 				res.body.should.be.eql('Send a post request to this page for authorization');
+// 				done();
+// 			});
+// 	});
+// });
 
 let refreshToken;
 

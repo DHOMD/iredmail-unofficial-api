@@ -1,42 +1,52 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate, refresh } = require('../controllers/auth');
+const { body, validationResult } = require('express-validator');
 
-router.get('/', (req, res) => {
-	res.json('Send a post request to this page for authorization');
-});
+router.post(
+	'/',
+	[
+		body('userName', 'Invalid or missing userName').isEmail(),
+		body('password', 'Invalid or missing password')
+			.not()
+			.isEmpty()
+			.trim()
+			.blacklist('; ')
+			.escape()
+	],
+	async (request, response) => {
+		const errors = validationResult(request).array();
 
-router.post('/', (request, response) => {
-	const { userName, password } = request.body;
+		if (errors != '') {
+			return response.status(400).json({ message: 'Invalid values', errors });
+		}
 
-	if (typeof userName === 'undefined' || typeof password === 'undefined') {
-		response.json('Invalid or missing values');
-		return;
+		const { userName, password } = request.body;
+
+		const { status, message, refreshToken, accessToken } = await authenticate(userName, password);
+		return response.status(status).json({ message, refreshToken, accessToken });
 	}
+);
 
-	authenticate(userName, password)
-		.then(obj => {
-			const { status, message, refreshToken, accessToken } = obj;
-			response.status(status).json({ message, refreshToken, accessToken });
-		})
-		.catch(() => {
-			response
-				.status(503)
-				.json({ message: 'Something went wrong, try again later', refreshToken: '', accessToken: '' });
-		});
-});
+router.post(
+	'/refresh',
+	[
+		body('refreshToken', 'Invalid or missing refreshToken')
+			.not()
+			.isEmpty()
+	],
+	(request, response) => {
+		const errors = validationResult(request).array();
 
-router.post('/refresh', (request, response) => {
-	const { refreshToken } = request.body;
+		if (errors != '') {
+			return response.status(400).json({ message: 'Invalid values', errors });
+		}
 
-	if (typeof refreshToken === 'undefined') {
-		response.json('Invalid or missing values');
+		const { refreshToken } = request.body;
+		const { status, message, accessToken } = refresh(refreshToken);
+
+		return response.status(status).json({ message, accessToken });
 	}
-
-	const { status, message, accessToken } = refresh(refreshToken);
-
-	response.status(status);
-	response.json({ message, accessToken });
-});
+);
 
 module.exports = router;

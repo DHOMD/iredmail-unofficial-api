@@ -7,11 +7,6 @@ const doesPasswordMatchHash = (password, hash) => {
 };
 
 const authenticate = async (userName, password) => {
-	let status;
-	let message;
-	let refreshToken = '';
-	let accessToken = '';
-
 	try {
 		const rows = await findUser(userName);
 		const row = rows[0];
@@ -26,21 +21,16 @@ const authenticate = async (userName, password) => {
 		}
 
 		if (isCorrectPassword) {
-			refreshToken = generateRefreshToken(row.userName) || '';
-			accessToken = generateAccessToken(refreshToken) || '';
+			let refreshToken = generateRefreshToken(row.userName) || '';
+			let accessToken = generateAccessToken(refreshToken) || '';
 
-			status = 200;
-			message = 'Successfully authenticated';
-		} else {
-			status = 400;
-			message = 'Wrong username or password';
+			return { status: 200, message: 'Succesfully authenticated', refreshToken, accessToken };
 		}
-	} catch (e) {
-		status = 503;
-		message = 'Something went wrong, try again later';
-	}
 
-	return { status, message, refreshToken, accessToken };
+		return { status: 400, message: 'Succesfully authenticated', refreshToken: '', accessToken: '' };
+	} catch {
+		return { status: 503, message: 'Something went wrong, try again later', refreshToken: '', accessToken: '' };
+	}
 };
 
 const refresh = refreshToken => {
