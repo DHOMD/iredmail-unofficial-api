@@ -13,7 +13,7 @@
     "test:only": "mocha $1"
   },
   "author": "Yaroslav Ishanov",
-  "license": "GNU",
+ "license": "MIT",
   "dependencies": {
     "bcrypt": "^3.0.7",
     "cors": "^2.8.5",
@@ -30,7 +30,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
-    "mocha": "^7.0.0",
+    "mocha": "^7.1.1",
     "nodemon": "^2.0.2"
   }
 }
