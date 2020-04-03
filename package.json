@@ -13,7 +13,7 @@
     "test:only": "mocha $1"
   },
   "author": "Yaroslav Ishanov",
-  "license": "MIT",
+  "license": "GNU",
   "dependencies": {
     "bcrypt": "^3.0.7",
     "cors": "^2.8.5",
